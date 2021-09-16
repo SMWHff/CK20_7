@@ -9,7 +9,6 @@
 import logging
 import time
 from typing import Dict
-
 import allure
 from appium import webdriver
 from appium.webdriver.webdriver import WebDriver
@@ -53,8 +52,9 @@ class BasePage:
             # 设置隐式等待 3 秒
             self.driver.implicitly_wait(3)
         else:
+            # 存在的话就赋值给当前实例类里
             self.driver = base_driver
-        # 等待进入当前界面
+        # 显示等待 30 秒内是否进入当前界面
         WebDriverWait(self.driver, 30).until(lambda x: x.current_activity == self._base_activity)
 
     def find(self, by, value=None):

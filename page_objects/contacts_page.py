@@ -9,7 +9,6 @@
 from selenium.webdriver.common.by import By
 from page_objects.addmember_page import AddMemberPage
 from page_objects.base_page import BasePage
-from page_objects.manage_contact_page import ManageContact
 from page_objects.search_page import SearchPage
 
 
@@ -18,6 +17,7 @@ class ContactsPage(BasePage):
     通讯录界面类
     """
     _base_activity = ".launch.WwMainActivity"
+    _locator_sum = (By.XPATH, "//*[contains(@text, '人未加入')]")
 
     def goto_search(self):
         """
@@ -33,20 +33,9 @@ class ContactsPage(BasePage):
         跳转到添加成员界面
         :return: 返回添加成员界面类
         """
-        # 点击添加成员按钮
-        self.find(By.XPATH, "//*[@text='添加成员']").click()
+        # 滑动查找添加成员按钮，并点击
+        self.swipe_find(By.XPATH, "//*[@text='添加成员']").click()
         return AddMemberPage(self.driver, self.dict_data)
-
-    def goto_manage_contact(self):
-        """
-        跳转到管理通讯录
-        :return: 返回管理通讯录界面类
-        """
-        # 获取通讯录总人数
-        self.dict_data["count"] = self.get_member_count()
-        # 点击左上角的管理设置按钮
-        self.swipe_find(By.XPATH, "//*[@resource-id='com.tencent.wework:id/top_bar_right_button2']").click()
-        return ManageContact(self.driver, self.dict_data)
 
     def get_member_count(self):
         """
@@ -62,7 +51,7 @@ class ContactsPage(BasePage):
             return 1
         else:
             # 滑动到底部，获取显示的总人数
-            text = self.swipe_find(By.XPATH, "//*[contains(@text, '人未加入')]").text
+            text = self.swipe_find(self._locator_sum).text
             # 获取字符串切片开始索引
             start_index = text.find("共")
             # 获取字符串切片结束索引
@@ -88,7 +77,7 @@ class ContactsPage(BasePage):
             if len(self.find(By.XPATH, f"//*[@text='{name}']")) > 0:
                 return True
             # 如果出现 ”人未加入“ 表示滑到底了还未找到，则返回 False
-            if len(self.finds(By.XPATH, "//*[contains(@text, '人未加入')]")) > 0:
+            if len(self.finds(self._locator_sum)) > 0:
                 return False
             # 打印运行日志
             self.log_info("没有找到，滑一下")

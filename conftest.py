@@ -11,6 +11,9 @@ import time
 import pytest
 from typing import List
 
+# 设置用例路径
+case_yml = "./data/case.yml"
+
 
 # 将Unicode码替换成文字
 def pytest_collection_modifyitems(session: "Session", config: "Config", items: List["Item"]) -> None:

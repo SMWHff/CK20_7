@@ -7,7 +7,6 @@
 # @File       : search_page.py
 # @Time       : 2021/9/16 17:55
 from time import sleep
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
@@ -33,8 +32,6 @@ class SearchPage(BasePage):
         self.find(By.XPATH, "//*[@resource-id='com.tencent.wework:id/search_bar_text']").send_keys(name)
         # 点击找到的结果
         self.find(By.XPATH, f"//android.view.ViewGroup/*[@text='{name}']").click()
-        # 传递返回页面给后面的类使用
-        self.dict_data["back_page"] = "SearchPage"
         return MemberInfoPage(self.driver, self.dict_data)
 
     def get_search_desc(self):
@@ -42,8 +39,10 @@ class SearchPage(BasePage):
         获取搜索结果提示
         :return: 返回提示内容
         """
-        # 强制等待 1 秒
-        sleep(1)
+        # 元素定位器
+        locator = (By.XPATH, "//*[@resource-id='com.tencent.wework:id/empty_view_desc']")
+        # 强制等待 10 秒判断元素是否显示
+        WebDriverWait(self.driver, 10).until(expected_conditions.visibility_of_element_located(locator))
         # 获取搜索结果信息
-        text = self.find(By.XPATH, "//*[@resource-id='com.tencent.wework:id/empty_view_desc']").text
+        text = self.find(locator).text
         return text
