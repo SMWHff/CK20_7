@@ -3,7 +3,7 @@
 # @Author     : SMWHff
 # @Email      : SMWHff@163.com
 # @IDE        : PyCharm
-# @Project    : CK20_7_1
+# @Project    : CK20_7
 # @File       : conftest.py
 # @Time       : 2021/9/12 19:39
 
