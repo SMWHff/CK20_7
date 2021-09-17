@@ -10,7 +10,6 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
-
 from page_objects.base_page import BasePage
 from page_objects.member_info_page import MemberInfoPage
 

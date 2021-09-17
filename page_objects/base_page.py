@@ -10,11 +10,15 @@ import logging
 import time
 from typing import Dict
 import allure
+from tools.utils import Utils
 from appium import webdriver
 from appium.webdriver.webdriver import WebDriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+
+# 设置用例文件路径
+case_yml = Utils.get_root_path() + "/data/case.yml"
 
 
 class BasePage:
@@ -22,7 +26,7 @@ class BasePage:
     基础父类，用于其他类继承公共资源共享
     """
     _base_activity = ".launch.WwMainActivity"
-    _save_filename = f"./data/{time.strftime('%Y-%m-%d %H-%M-%S')}.png"
+    _save_filename = f"{Utils.get_root_path()}/data/{time.strftime('%Y-%m-%d %H-%M-%S')}.png"
 
     def __init__(self, base_driver: WebDriver = None, base_data: Dict = None):
         # 判断 dict_data 字典是否存在
@@ -45,6 +49,8 @@ class BasePage:
                 'unicodeKeyboard': True,
                 'resetKeyboard': True,
                 "newCommandTimeout": 300,
+                "skipDeviceInitialization": True,
+                "dontStopAppOnReset": True,
                 "noReset": True
             }
             # 连接 appium server
