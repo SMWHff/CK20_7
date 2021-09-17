@@ -7,10 +7,8 @@
 # @File       : utils.py
 # @Time       : 2021/9/13 8:41
 import os
-import sys
 import yaml
 from faker import Faker
-
 
 
 class Utils:
@@ -40,9 +38,9 @@ class Utils:
         获取项目根目录的绝对路径
         :return: 返回项目根目录路径
         """
-        rootPath = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+        root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
         # 替换斜杠
-        return rootPath.replace("\\", "/")
+        return root_path.replace("\\", "/")
 
     @classmethod
     def generate_case_data(cls, num=10):
@@ -98,7 +96,7 @@ class Utils:
             if case_data["add_member_fail"]["data"][i][1] is None:
                 case_data["add_member_fail"]["data"][i][1] = Utils.get_phone()
         with open(case_yml, "w", encoding="utf-8") as f:
-            yaml.dump(case_data, f)
+            yaml.safe_dump(case_data, f, allow_unicode=True)
         return case_yml
 
     @classmethod
@@ -108,13 +106,13 @@ class Utils:
         :return: 返回测试用例数据
         """
         from page_objects.base_page import case_yml
-        # 判断 cookies.yml 文件是否存在
-        path = case_yml
-        if not os.path.isfile(path):
-            print("生成测试数据")
-            print("文件路径1：", path)
-            path = cls.generate_case_data(1)
-        with open(path, encoding="utf-8") as f:
+        yml_path = case_yml
+        # 判断 case_yml 文件是否存在
+        if not os.path.isfile(yml_path):
+            # 随机生成测试用例数据并保存到 yml 文件
+            yml_path = cls.generate_case_data()
+        # 读取测试用例
+        with open(yml_path, encoding="utf-8") as f:
             case_data = yaml.safe_load(f)
         add_member_data = case_data.get("add_member").get("data")
         add_member_ids = case_data.get("add_member").get("ids")

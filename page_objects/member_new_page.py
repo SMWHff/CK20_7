@@ -6,7 +6,6 @@
 # @Project    : CK20_7
 # @File       : member_new_page.py
 # @Time       : 2021/9/16 18:36
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from page_objects.base_page import BasePage
 

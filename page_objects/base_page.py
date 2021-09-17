@@ -66,17 +66,19 @@ class BasePage:
         :param value: 元素特征
         :return: 返回元素对象
         """
-        try:
-            if value is None:
-                self.log_info(f"正在查找元素：{by}")
-                return self.driver.find_element(*by)
-            else:
-                self.log_info(f"正在查找元素：{(by, value)}")
-                return self.driver.find_element(by, value)
-        except NoSuchElementException:
-            # 未找到元素，可能存在弹窗遮挡
-            # 进入弹窗处理流程
-            self.handling_popup()
+        for i in range(2):
+            try:
+                locator = by if value is None else (by, value)
+                self.log_info(f"正在查找元素：{locator}")
+                return self.driver.find_element(*locator)
+            except NoSuchElementException:
+                # 未找到元素，可能存在弹窗遮挡
+                if i == 0:
+                    # 进入弹窗处理流程
+                    self.handling_popup()
+        msg = "唉~ 找了好久，还是未找到元素！"
+        self.log_info(msg)
+        raise NoSuchElementException(msg)
 
     def finds(self, by, value=None):
         """
@@ -108,7 +110,9 @@ class BasePage:
             except NoSuchElementException:
                 self.log_info("没有找到，滑一下")
                 self.swipe()
-        raise NoSuchElementException(f"唉！找了{num}次，还是没找到！")
+        msg = f"唉！找了{num}次，还是没找到！"
+        self.log_info(msg)
+        raise NoSuchElementException(msg)
 
     def swipe(self):
         """
@@ -185,7 +189,7 @@ class BasePage:
         处理随机弹窗
         :return: 返回处理结果
         """
-        result = False
+        result = None
         # 存放各种弹窗界面的处理列表
         list_popups = [
             ["标题", "组件名", [("定位器类型", "定位器的值")]],
@@ -205,17 +209,18 @@ class BasePage:
             # 判断当前界面是否存在弹窗列表中
             if cur_activity == popup_activity:
                 # 输出日志信息
-                self.log_info(f"正在处理弹窗：{popup_title}")
+                self.log_info(f"发现弹窗：{popup_title}")
                 # 存在，则点击对应的按钮处理掉
                 for popup_locator in list_locator:
-                    self.find(popup_locator).click()
-                # 成功返回 True
+                    self.log_info(f"正在处理弹窗：{popup_locator}")
+                    self.driver.find_element(*popup_locator).click()
+                # 成功返回元素
                 result = True
         if not result:
             # 当前出现的弹窗未在弹窗列表库中
             self.log_info(f"【异常】当前界面：{cur_activity}")
             # 将截图贴到报告中
-            allure.attach.file(self.screenshot(), "【异常】疑似弹窗界面截图", attachment_type=allure.attachment_type.PNG)
+            allure.attach.file(self.screenshot(), "【异常】截图", attachment_type=allure.attachment_type.PNG)
             # 将界面布局源码贴到报告中
-            allure.attach(self.driver.page_source, "【异常】疑似弹窗界面布局源码", attachment_type=allure.attachment_type.XML)
+            allure.attach(self.driver.page_source, "【异常】布局源码", attachment_type=allure.attachment_type.XML)
         return result

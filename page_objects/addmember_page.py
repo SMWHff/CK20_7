@@ -6,7 +6,6 @@
 # @Project    : CK20_7_1
 # @File       : addmember_page.py
 # @Time       : 2021/9/12 20:19
-from time import sleep
 from selenium.webdriver.common.by import By
 from page_objects.base_page import BasePage
 from page_objects.member_new_page import NewMemberPage
@@ -32,8 +31,6 @@ class AddMemberPage(BasePage):
         获取操作提示内容
         :return: 返回提示内容
         """
-        # 强制等待 1 秒
-        sleep(1)
         # 获取 Toast 提示框内容
         text = self.find(By.XPATH, "//android.widget.Toast").text
         return text

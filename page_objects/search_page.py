@@ -6,7 +6,6 @@
 # @Project    : CK20_7
 # @File       : search_page.py
 # @Time       : 2021/9/16 17:55
-from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from page_objects.base_page import BasePage

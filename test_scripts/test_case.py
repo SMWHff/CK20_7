@@ -8,24 +8,19 @@
 # @Time       : 2021/9/12 19:40
 import allure
 import pytest
-from page_objects.app import App
-from tools.utils import Utils
+import os
+import sys
 
-_base_app = None
 
 def start_app():
     """
     启动APP
     :return: 返回App对象
     """
-    # 全局定义 _base_app 对象
-    global _base_app
-    # 判断 _base_app 对象是否存在
-    if _base_app is None:
-        # 不存在就实例化一个
-        _base_app = App()
-    # 返回 _base_app 对象
-    return _base_app
+    from page_objects.app import App
+    # 返回 App 对象
+    return App()
+
 
 @pytest.fixture(scope='class')
 @allure.title("前置步骤")
@@ -35,7 +30,7 @@ def class_fixture_addmember():
     :return: (app对象,page对象)
     """
     # 启动APP
-    app = App()
+    app = start_app()
     # 第一步
     with allure.step("1.进入到主界面"):
         page = app.start().goto_main()
@@ -60,7 +55,7 @@ def class_fixture_addmember_fail():
     :return: (app对象,page对象)
     """
     # 启动APP
-    app = App()
+    app = start_app()
     # 第一步
     with allure.step("1.进入到主界面"):
         page = app.start().goto_main()
@@ -88,7 +83,7 @@ def class_fixture_delmember():
     :return: (app对象,page对象)
     """
     # 启动App
-    app = App()
+    app = start_app()
     # 第一步
     with allure.step("1.进入到主界面"):
         page = app.start().goto_main()
@@ -105,15 +100,20 @@ def class_fixture_delmember():
     # app.stop()
 
 
-
 @allure.feature("执行测试用例")
 class TestCase:
     """
     执行测试用例
     """
+    # 将项目的跟路径加入到 python 的环境变量路径
+    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(base_path)
+    # 再引入模块，就不会和系统命名重复导致报错了
+    from tools.utils import Utils
 
-    # @pytest.mark.skip
+
     # @pytest.mark.run(order=1)
+    @pytest.mark.skip
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.story("测试添加成员成功")
     @allure.title("添加成员成功用例，姓名：{name}，手机：{phone}")
@@ -130,7 +130,7 @@ class TestCase:
         """
         # 第四步
         with allure.step("4.在添加成员界面点击手动输入添加按钮，进入到新建成员界面"):
-            page = class_fixture_addmember[0].goto_addmember_by_manual()
+            page = class_fixture_addmember.goto_addmember_by_manual()
         # 第五步
         with allure.step("5.输入姓名、手机号，点击保存按钮，跳转回到通讯录界面"):
             page = page.new_member(name, phone)
@@ -158,9 +158,9 @@ class TestCase:
         """
         # 第五步
         with allure.step("5.输入姓名、手机号，点击保存按钮，并返回提示内容"):
-            result = class_fixture_addmember_fail[0].new_member_fail(name, phone)
+            result = class_fixture_addmember_fail.new_member_fail(name, phone)
         # 将截图贴到报告中
-        allure.attach.file(class_fixture_addmember_fail[0].screenshot(), "截图", attachment_type=allure.attachment_type.PNG)
+        allure.attach.file(class_fixture_addmember_fail.screenshot(), "截图", attachment_type=allure.attachment_type.PNG)
         assert result == expect
 
     # @pytest.mark.skip
@@ -183,7 +183,7 @@ class TestCase:
         """
         # 第四步
         with allure.step("4.在搜索界面输入姓名进行搜索，点击第一个搜索结果，进入到个人信息显示界面"):
-            page = class_fixture_delmember[0].search(name)
+            page = class_fixture_delmember.search(name)
         # 第五步
         with allure.step("5.在个人信息显示界面点击右上角的三个点，进入到个人信息设置界面"):
             page = page.goto_member_settings()
