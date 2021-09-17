@@ -9,7 +9,6 @@
 from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 from page_objects.base_page import BasePage
 from page_objects.member_info_page import MemberInfoPage
 
@@ -41,7 +40,7 @@ class SearchPage(BasePage):
         # 元素定位器
         locator = (By.XPATH, "//*[@resource-id='com.tencent.wework:id/empty_view_desc']")
         # 强制等待 10 秒判断元素是否显示
-        WebDriverWait(self.driver, 10).until(expected_conditions.visibility_of_element_located(locator))
+        self.wait_until(self.driver, 10, expected_conditions.visibility_of_element_located(locator))
         # 获取搜索结果信息
         text = self.find(locator).text
         return text

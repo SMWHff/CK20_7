@@ -7,8 +7,6 @@
 # @File       : app.py
 # @Time       : 2021/9/12 19:40
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-
 from page_objects.base_page import BasePage
 from page_objects.main_page import MainPage
 
@@ -52,6 +50,6 @@ class App(BasePage):
         跳转到APP入口界面
         :return: 返回主界面类
         """
-        # 设置显示等待 30 秒
-        WebDriverWait(self, 30).until(lambda x: len(x.finds(By.XPATH, "//*[@text='通讯录']")) > 0)
+        # 设置显示等待 60 秒
+        self.wait_until(self, 60, lambda x: len(x.finds(By.XPATH, "//*[@text='通讯录']")) > 0)
         return MainPage(self.driver)

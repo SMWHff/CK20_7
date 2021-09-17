@@ -13,7 +13,7 @@ import allure
 from tools.utils import Utils
 from appium import webdriver
 from appium.webdriver.webdriver import WebDriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -46,11 +46,7 @@ class BasePage:
                 "automationName": "Appium",
                 "appPackage": "com.tencent.wework",
                 "appActivity": ".launch.WwMainActivity",
-                'unicodeKeyboard': True,
-                'resetKeyboard': True,
                 "newCommandTimeout": 300,
-                "skipDeviceInitialization": True,
-                "dontStopAppOnReset": True,
                 "noReset": True
             }
             # 连接 appium server
@@ -61,7 +57,7 @@ class BasePage:
             # 存在的话就赋值给当前实例类里
             self.driver = base_driver
         # 显示等待 30 秒内是否进入当前界面
-        WebDriverWait(self.driver, 30).until(lambda x: x.current_activity == self._base_activity)
+        self.wait_until(self.driver, 30, lambda x: x.current_activity == self._base_activity)
 
     def find(self, by, value=None):
         """
@@ -154,6 +150,36 @@ class BasePage:
         """
         logging.info(text)
 
+    def wait_until(self, driver, timeout, method):
+        """
+        显示等待条件成立
+        :param driver: 驱动对象
+        :param timeout: 超时秒数
+        :param method: 条件方法
+        :return: 返回结果
+        """
+        try:
+            # 显示等待条件成立
+            WebDriverWait(driver, timeout).until(method)
+        except TimeoutException:
+            # 显示等待超时，开始执行弹窗处理流程
+            self.handling_popup()
+
+    def wait_until_not(self, driver, timeout, method):
+        """
+        显示等待条件不成立
+        :param driver: 驱动对象
+        :param timeout: 超时秒数
+        :param method: 条件方法
+        :return: 返回结果
+        """
+        try:
+            # 显示等待条件不成立
+            WebDriverWait(driver, timeout).until_not(method)
+        except TimeoutException:
+            # 显示等待超时，开始执行弹窗处理流程
+            self.handling_popup()
+
     def handling_popup(self):
         """
         处理随机弹窗
@@ -162,8 +188,9 @@ class BasePage:
         result = False
         # 存放各种弹窗界面的处理列表
         list_popups = [
-            ["标题", "组件名", ("定位器类型", "定位器的值")],
-            ["标题", ".contact.controller.WorkMateRecommendActivity", (By.XPATH, "//*[@text='跳过']")]
+            ["标题", "组件名", [("定位器类型", "定位器的值")]],
+            ["标题", ".contact.controller.WorkMateRecommendActivity", [(By.XPATH, "//*[@text='跳过']")]],
+            ["添加成员出错", ".contact.controller.ContactAddFastModeActivity", [(By.XPATH, "//*[@text='确定']"), (By.ID, "com.tencent.wework:id/top_bar_left_button1")]]
         ]
         # 获取当前界面的组件名
         cur_activity = self.get_activity()
@@ -174,13 +201,15 @@ class BasePage:
             # 组件名
             popup_activity = popup[1]
             # 定位器
-            popup_locator = popup[2]
+            list_locator = popup[2]
             # 判断当前界面是否存在弹窗列表中
             if cur_activity == popup_activity:
                 # 输出日志信息
                 self.log_info(f"正在处理弹窗：{popup_title}")
                 # 存在，则点击对应的按钮处理掉
-                self.find(popup_locator).click()
+                for popup_locator in list_locator:
+                    self.find(popup_locator).click()
+                # 成功返回 True
                 result = True
         if not result:
             # 当前出现的弹窗未在弹窗列表库中

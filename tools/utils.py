@@ -36,6 +36,10 @@ class Utils:
 
     @classmethod
     def get_root_path(cls):
+        """
+        获取项目根目录的绝对路径
+        :return: 返回项目根目录路径
+        """
         rootPath = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
         # 替换斜杠
         return rootPath.replace("\\", "/")
@@ -81,9 +85,9 @@ class Utils:
             name = Utils.get_name()
             phone = Utils.get_phone()
             case_data["add_member"]["data"].append([name, phone])
-            case_data["add_member"]["ids"].append(f"添加{name}成功")
+            case_data["add_member"]["ids"].append(f"添加成功 <{name}>")
             case_data["del_member"]["data"].append(name)
-            case_data["del_member"]["ids"].append(f"删除{name}成功")
+            case_data["del_member"]["ids"].append(f"删除成功 <{name}>")
             if i == num - 1:
                 case_data["add_member_fail"]["data"].append([name, phone, "手机已存在于通讯录，无法添加"])
                 case_data["add_member_fail"]["ids"].append("手机已存在于通讯录，无法添加")
@@ -109,7 +113,7 @@ class Utils:
         if not os.path.isfile(path):
             print("生成测试数据")
             print("文件路径1：", path)
-            path = cls.generate_case_data(10)
+            path = cls.generate_case_data(1)
         with open(path, encoding="utf-8") as f:
             case_data = yaml.safe_load(f)
         add_member_data = case_data.get("add_member").get("data")
